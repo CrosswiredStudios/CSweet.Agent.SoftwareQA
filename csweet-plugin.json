@@ -1,0 +1,117 @@
+{
+  "$schema": "https://raw.githubusercontent.com/CrosswiredStudios/CSweetAgentSdk/main/schemas/csweet-plugin.v2.schema.json",
+  "manifestVersion": "2.0",
+  "kind": "agent",
+  "id": "com.csweet.software-qa",
+  "name": "C-Sweet Software QA",
+  "version": "0.1.0",
+  "publisher": { "id": "com.csweet", "name": "C-Sweet" },
+  "runtime": {
+    "type": "dotnet-project",
+    "projectPath": "src/CSweet.Agents.SoftwareQA/CSweet.Agents.SoftwareQA.csproj",
+    "targetFramework": "net10.0",
+    "defaultActivationMode": "Manual",
+    "supportsMultipleInstallations": true,
+    "maximumConcurrentJobs": 1,
+    "environmentProfile": "software-development-polyglot-v1",
+    "workspaceAccess": "ReadWrite"
+  },
+  "protocol": { "minimumVersion": "2.0", "maximumVersion": "2.x" },
+  "provides": [
+    {
+      "name": "software-quality.validate.v1",
+      "description": "Validate an immutable software revision against approved acceptance criteria and return bounded evidence.",
+      "inputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["repository", "objective", "requirements", "acceptanceCriteria"],
+        "properties": {
+          "repository": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "objective": { "type": "string", "minLength": 1, "maxLength": 8000 },
+          "requirements": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "type": "string", "minLength": 1, "maxLength": 4000 } },
+          "acceptanceCriteria": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "type": "string", "minLength": 1, "maxLength": 4000 } },
+          "sourceCommitSha": { "type": ["string", "null"], "maxLength": 64 }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["workId", "verdict", "report", "completedAt"],
+        "properties": {
+          "workId": { "type": "string", "format": "uuid" },
+          "verdict": { "type": "string" },
+          "report": { "type": "string", "minLength": 1 },
+          "completedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "executionTimeoutSeconds": 900,
+      "idempotency": "work-item",
+      "riskClass": "elevated"
+    },
+    {
+      "name": "agent.configuration.describe.v1",
+      "description": "Describe Software QA configuration.",
+      "inputSchema": { "type": "object", "additionalProperties": false },
+      "outputSchema": { "type": "object", "additionalProperties": true },
+      "executionTimeoutSeconds": 30, "idempotency": "none", "riskClass": "standard"
+    },
+    {
+      "name": "agent.configuration.update.v1",
+      "description": "Update Software QA configuration.",
+      "inputSchema": {
+        "type": "object", "additionalProperties": false, "required": ["settings"],
+        "properties": {
+          "settings": {
+            "type": "object", "additionalProperties": false,
+            "properties": {
+              "llmProviderId": { "type": "string" },
+              "llmModel": { "type": "string" },
+              "maxContextWindowTokens": { "type": "number", "minimum": 16000, "maximum": 2000000 },
+              "maxOutputTokens": { "type": "number", "minimum": 1000, "maximum": 200000 },
+              "maxQaReworkCycles": { "type": "number", "minimum": 0, "maximum": 20 },
+              "customInstructions": { "type": "string" }
+            }
+          }
+        }
+      },
+      "outputSchema": { "type": "object", "additionalProperties": true },
+      "executionTimeoutSeconds": 30, "idempotency": "work-item", "riskClass": "standard"
+    }
+  ],
+  "requires": [
+    { "name": "platform.llm.chat-stream.v1", "scope": "organization", "purpose": "Run the bounded QA harness with an approved model" },
+    { "name": "work.item.read", "scope": "work-item", "purpose": "Read only the assigned ticket and immutable quality brief" },
+    { "name": "work.item.quality.submit", "scope": "work-item", "purpose": "Submit the structured QA verdict to the deterministic delivery coordinator" },
+    { "name": "git.workspace.prepare.v1", "scope": "work-item", "purpose": "Prepare the exact approved source commit for validation" },
+    { "name": "git.workspace.inspect.v1", "scope": "work-item", "purpose": "Verify the tested revision and detect tracked source changes" },
+    { "name": "git.workspace.cleanup.v1", "scope": "work-item", "purpose": "Remove completed QA workspaces or retain failures for bounded diagnostics" }
+  ],
+  "events": { "subscribes": ["work.item.assigned.v1"] },
+  "configuration": [
+    { "key": "llmProviderId", "type": "provider", "label": "LLM provider", "required": true, "secret": false },
+    { "key": "llmModel", "type": "model", "label": "Model", "required": true, "secret": false },
+    { "key": "maxContextWindowTokens", "type": "number", "label": "Maximum context-window tokens", "required": true, "secret": false },
+    { "key": "maxOutputTokens", "type": "number", "label": "Maximum output tokens", "required": true, "secret": false },
+    { "key": "maxQaReworkCycles", "type": "number", "label": "Maximum QA rework cycles", "required": true, "secret": false },
+    { "key": "customInstructions", "type": "textarea", "label": "Custom instructions", "required": false, "secret": false }
+  ],
+  "credentials": [],
+  "webAccess": {
+    "mode": "Allowlist",
+    "rules": [
+      { "scheme": "https", "host": "api.nuget.org", "port": 443, "pathPrefix": "/", "methods": ["GET"], "protocol": "http", "purpose": "Restore approved NuGet dependencies" },
+      { "scheme": "https", "host": "registry.npmjs.org", "port": 443, "pathPrefix": "/", "methods": ["GET"], "protocol": "http", "purpose": "Restore approved npm dependencies" },
+      { "scheme": "https", "host": "pypi.org", "port": 443, "pathPrefix": "/", "methods": ["GET"], "protocol": "http", "purpose": "Resolve approved Python dependencies" },
+      { "scheme": "https", "host": "files.pythonhosted.org", "port": 443, "pathPrefix": "/", "methods": ["GET"], "protocol": "http", "purpose": "Download approved Python dependencies" }
+    ],
+    "purpose": "Restore dependencies through the C-Sweet egress gateway"
+  },
+  "ui": [
+    { "kind": "form", "id": "software-qa-settings", "title": "Software QA settings", "capability": "agent.configuration.update.v1" }
+  ],
+  "catalog": {
+    "summary": "Independently validates software revisions, reports reproducible defects, and supplies merge-gating evidence.",
+    "category": "Engineering",
+    "roleAliases": ["Software QA", "Quality Engineer", "QA Engineer"],
+    "keywords": ["quality assurance", "testing", "release validation"],
+    "documentationUrl": "README.md"
+  }
+}

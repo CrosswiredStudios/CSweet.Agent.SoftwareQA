@@ -1,8 +1,20 @@
-# CSweet.Agent.SoftwareQA
+# C-Sweet Software QA
 
-Status: **Planned — non-installable**.
+First-party protocol-v2 quality agent. It validates the exact PR commit assigned by C-Sweet,
+traces evidence to acceptance criteria, and submits a structured `Passed`, `Failed`, or `Blocked`
+verdict to the deterministic delivery coordinator.
 
-This repository contains no executable project or plugin manifest. C-Sweet must advertise it as
-`Planned` and reject installation. When implementation begins it must start directly on
-`CSweet.Agent.SDK` 1.0 and `csweet-plugin.json` manifest protocol v2. Do not add protocol-v1 or
-legacy transport compatibility code.
+The agent never edits product source, fixes defects, pushes, merges, deploys, or handles
+credentials. C-Sweet owns defect creation, rework routing, governed merge, ticket completion, and
+sprint sequencing.
+
+`maxQaReworkCycles` defaults to 3 and is configurable from 0 through 20 in installation settings.
+
+## Build and test
+
+```powershell
+dotnet test CSweet.Agents.SoftwareQA.slnx
+dotnet run --project src/CSweet.Agents.SoftwareQA -- --self-test
+```
+
+Built with `CSweet.Agent.SDK` 2.3.0 and manifest protocol v2.
