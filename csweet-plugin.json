@@ -19,6 +19,23 @@
   "protocol": { "minimumVersion": "2.0", "maximumVersion": "2.x" },
   "provides": [
     {
+      "name": "work.execution.run.v1",
+      "description": "Execute one pinned board QA stage and return a structured outcome without mutating the card transition.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["stageExecutionId", "attemptId", "boardId", "itemId", "stageKey", "priorOutcomes"],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["stageExecutionId", "attemptId", "disposition", "outcomeCode", "summary", "output", "evidence", "diagnostics"],
+        "additionalProperties": true
+      },
+      "executionTimeoutSeconds": 1800,
+      "idempotency": "work-item",
+      "riskClass": "elevated"
+    },
+    {
       "name": "software-quality.validate.v1",
       "description": "Validate an immutable software revision against approved acceptance criteria and return bounded evidence.",
       "inputSchema": {
@@ -79,12 +96,11 @@
   "requires": [
     { "name": "platform.llm.chat-stream.v1", "scope": "organization", "purpose": "Run the bounded QA harness with an approved model" },
     { "name": "work.item.read", "scope": "work-item", "purpose": "Read only the assigned ticket and immutable quality brief" },
-    { "name": "work.item.quality.submit", "scope": "work-item", "purpose": "Submit the structured QA verdict to the deterministic delivery coordinator" },
     { "name": "git.workspace.prepare.v1", "scope": "work-item", "purpose": "Prepare the exact approved source commit for validation" },
     { "name": "git.workspace.inspect.v1", "scope": "work-item", "purpose": "Verify the tested revision and detect tracked source changes" },
     { "name": "git.workspace.cleanup.v1", "scope": "work-item", "purpose": "Remove completed QA workspaces or retain failures for bounded diagnostics" }
   ],
-  "events": { "subscribes": ["work.item.assigned.v1"] },
+  "events": { "subscribes": [] },
   "configuration": [
     { "key": "llmProviderId", "type": "provider", "label": "LLM provider", "required": true, "secret": false },
     { "key": "llmModel", "type": "model", "label": "Model", "required": true, "secret": false },

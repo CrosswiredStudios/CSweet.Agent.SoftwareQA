@@ -43,39 +43,12 @@ public sealed class SoftwareQaAgent : CSweetAgentBase
             .TextArea("customInstructions", "Custom instructions",
                 description: "Optional QA conventions that cannot expand authority.");
 
-    public override async Task HandleEventAsync(
-        AgentEventEnvelope message, AgentRuntimeContext context,
-        CancellationToken cancellationToken)
-    {
-        if (message.EventType != WorkItemEvents.Assigned) return;
-        var assigned = DeserializePayload<WorkItemAssignedEvent>(message.Data)
-            ?? throw new InvalidOperationException("Assignment payload is missing.");
-        if (!Guid.TryParse(context.InstallationId, out var installationId) ||
-            installationId != assigned.AssignedInstallationId)
-            throw new UnauthorizedAccessException("Assignment targets another installation.");
-
-        var item = await context.Platform.Work.ReadItemAsync(
-            new WorkItemReference(assigned.BoardId, assigned.ItemId), cancellationToken);
-        if (item.AssignedInstallationId != installationId || item.Quality is null ||
-            item.Status is WorkStatuses.Completed or WorkStatuses.Cancelled)
-            return;
-
-        try
-        {
-            await ExecuteAssignmentAsync(message, assigned, item, context, cancellationToken);
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, "QA failed for work item {ItemId}.", item.Id);
-            throw;
-        }
-    }
-
     protected override async Task<AgentWorkResult> ExecuteCapabilityCoreAsync(
         AgentCapabilityRequest request, AgentRuntimeContext context,
         CancellationToken cancellationToken)
     {
+        if (request.Capability == WorkManagementCapabilityNames.ExecutionRunV1)
+            return await ExecuteOrchestratedWorkAsync(request, context, cancellationToken);
         if (request.Capability != SoftwareQaProfile.PrimaryCapability)
             return AgentWorkResult.Failure($"Capability '{request.Capability}' is not supported.");
         SoftwareQaRequest? input;
@@ -105,19 +78,70 @@ public sealed class SoftwareQaAgent : CSweetAgentBase
         }
     }
 
-    private async Task ExecuteAssignmentAsync(
-        AgentEventEnvelope message, WorkItemAssignedEvent assigned, WorkItem item,
+    private async Task<AgentWorkResult> ExecuteOrchestratedWorkAsync(
+        AgentCapabilityRequest request, AgentRuntimeContext context,
+        CancellationToken cancellationToken)
+    {
+        WorkExecutionAssignmentV1? assignment;
+        try { assignment = DeserializePayload<WorkExecutionAssignmentV1>(request.Arguments); }
+        catch (JsonException) { return AgentWorkResult.Failure("The orchestration assignment is invalid JSON."); }
+        if (assignment is null) return AgentWorkResult.Failure("The orchestration assignment is empty.");
+        try
+        {
+            var item = await context.Platform.Work.ReadItemAsync(
+                new WorkItemReference(assignment.BoardId, assignment.ItemId), cancellationToken);
+            var development = assignment.PriorOutcomes.LastOrDefault(x =>
+                x.Disposition == WorkExecutionDispositions.Completed &&
+                x.Output.ValueKind == JsonValueKind.Object &&
+                x.Output.TryGetProperty("commitSha", out _))
+                ?? throw new InvalidOperationException("QA requires a completed development outcome.");
+            var delivery = item.Delivery
+                ?? throw new InvalidOperationException("QA requires the ticket delivery specification.");
+            var output = development.Output;
+            var quality = new SoftwareQualityBrief(
+                output.GetProperty("repositoryConnectionId").GetGuid(),
+                delivery.BaseBranch ?? "main",
+                output.GetProperty("sourceBranch").GetString()!,
+                output.GetProperty("commitSha").GetString()!,
+                new Uri(output.GetProperty("pullRequestUrl").GetString()!),
+                delivery.Requirements, delivery.AcceptanceCriteria,
+                assignment.Traversal + 1, 10, delivery.Constraints);
+            var qa = await ExecuteAssignmentAsync(
+                assignment.AttemptId, item, quality, context, cancellationToken);
+            var disposition = qa.Verdict == QualityVerdicts.Blocked
+                ? WorkExecutionDispositions.Blocked : WorkExecutionDispositions.Completed;
+            var outcomeCode = qa.Verdict == QualityVerdicts.Passed ? "passed" :
+                qa.Verdict == QualityVerdicts.Failed ? "changes_requested" : "blocked";
+            return AgentWorkResult.Success(new WorkExecutionOutcomeV1(
+                assignment.StageExecutionId, assignment.AttemptId,
+                disposition, outcomeCode, qa.Summary,
+                JsonSerializer.SerializeToElement(qa),
+                [new WorkExecutionEvidence("commit", "Validated commit", quality.SourceCommitSha)],
+                qa.RemainingRisks));
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(exception, "Orchestrated QA stage {StageExecutionId} is blocked.", assignment.StageExecutionId);
+            return AgentWorkResult.Success(new WorkExecutionOutcomeV1(
+                assignment.StageExecutionId, assignment.AttemptId,
+                WorkExecutionDispositions.Blocked, "blocked", exception.Message,
+                JsonSerializer.SerializeToElement(new { }), [], [exception.Message]));
+        }
+    }
+
+    private async Task<SoftwareQaOutcome> ExecuteAssignmentAsync(
+        Guid operationId, WorkItem item, SoftwareQualityBrief quality,
         AgentRuntimeContext context, CancellationToken cancellationToken)
     {
-        var quality = item.Quality!;
         var branch = quality.SourceBranch;
         await context.ReportProgressAsync(
             new { stage = "preparing", itemId = item.Id, quality.SourceCommitSha },
             cancellationToken);
         var workspace = await context.Platform.Git.PrepareAsync(
             new PrepareGitWorkspaceRequest(
-                item.Id, assigned.AssignmentRevision, quality.RepositoryConnectionId,
-                branch, branch, Key(message.EventId, "prepare"))
+                item.Id, 0, quality.RepositoryConnectionId,
+                branch, branch, Key(operationId, "prepare"))
             {
                 ExpectedCommitSha = quality.SourceCommitSha,
                 ResumePublishedBranch = true
@@ -131,7 +155,7 @@ public sealed class SoftwareQaAgent : CSweetAgentBase
         if (!path.StartsWith(expectedRoot, StringComparison.Ordinal) || !Directory.Exists(path))
             throw new InvalidOperationException("Platform returned an invalid QA workspace.");
 
-        var prompt = BuildPrompt(message.EventId, item, quality);
+        var prompt = BuildPrompt(operationId, item, quality);
         await RunHarnessAsync(path, prompt, context, cancellationToken);
         var outcome = await ReadOutcomeAsync(path, cancellationToken);
         ValidateOutcome(outcome, quality);
@@ -140,19 +164,13 @@ public sealed class SoftwareQaAgent : CSweetAgentBase
         if (inspection.HasTrackedChanges)
             throw new InvalidOperationException("QA modified tracked source files.");
 
-        var result = await context.Platform.Work.SubmitQualityAsync(
-            new SubmitQualityResultRequest(
-                assigned.BoardId, assigned.ItemId, assigned.AssignmentRevision,
-                quality.SourceCommitSha, outcome.Verdict, outcome.Summary,
-                outcome.Criteria, outcome.Validations, outcome.Findings,
-                outcome.RemainingRisks, Key(message.EventId, "quality")),
-            cancellationToken);
         await context.Platform.Git.CleanupAsync(
             new CleanupGitWorkspaceRequest(workspace.WorkspaceId, RetainOnFailure: false),
             cancellationToken);
         await context.ReportProgressAsync(
-            new { stage = "submitted", result.QualityRunId, result.Verdict, result.PipelineStatus },
+            new { stage = "completed", outcome.Verdict, quality.SourceCommitSha },
             cancellationToken);
+        return outcome;
     }
 
     private async Task<string> RunHarnessAsync(

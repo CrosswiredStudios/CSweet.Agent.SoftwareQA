@@ -16,18 +16,18 @@ public sealed class SoftwareQaAgentTests
 
         Assert.Equal(SoftwareQaProfile.AgentId, manifest.Id);
         Assert.Equal(SoftwareQaProfile.Version, manifest.Version);
+        Assert.Contains(WorkManagementCapabilityNames.ExecutionRunV1, manifest.Capabilities);
         Assert.True(schema.Succeeded);
         Assert.Equal(
             [
                 PlatformCapabilities.LlmChatStream,
                 WorkItemCapabilities.Read,
-                WorkItemCapabilities.QualitySubmit,
                 GitWorkspaceCapabilities.Prepare,
                 GitWorkspaceCapabilities.Inspect,
                 GitWorkspaceCapabilities.Cleanup
             ],
             manifest.Requires.Select(x => x.Name).ToArray());
-        Assert.Equal([WorkItemEvents.Assigned], manifest.Events.Subscribes);
+        Assert.Empty(manifest.Events.Subscribes);
     }
 
     [Fact]
