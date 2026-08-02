@@ -126,6 +126,9 @@
   "catalog": {
     "summary": "Independently validates software revisions, reports reproducible defects, and supplies merge-gating evidence.",
     "category": "Engineering",
+    "role": { "key": "software-qa", "name": "Software QA" },
+    "license": { "spdxId": "LicenseRef-Proprietary" },
+    "iconUrls": [],
     "roleAliases": ["Software QA", "Quality Engineer", "QA Engineer"],
     "keywords": ["quality assurance", "testing", "release validation"],
     "documentationUrl": "README.md"
