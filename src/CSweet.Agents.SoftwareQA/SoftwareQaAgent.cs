@@ -54,13 +54,12 @@ public sealed class SoftwareQaAgent : CSweetAgentBase
         SoftwareQaRequest? input;
         try { input = DeserializePayload<SoftwareQaRequest>(request.Arguments); }
         catch (JsonException) { return AgentWorkResult.Failure("The request payload is invalid."); }
-        if (input is null || string.IsNullOrWhiteSpace(input.Repository) ||
-            string.IsNullOrWhiteSpace(input.Objective) ||
+        if (input is null || string.IsNullOrWhiteSpace(input.Objective) ||
             input.Requirements is not { Count: > 0 } ||
             input.AcceptanceCriteria is not { Count: > 0 })
             return AgentWorkResult.Failure(
-                "repository, objective, requirements, and acceptanceCriteria are required.");
-        var path = Path.GetFullPath(input.Repository);
+                "objective, requirements, and acceptanceCriteria are required.");
+        var path = Path.GetFullPath("/workspace");
         if (!Directory.Exists(path))
             return AgentWorkResult.Failure("The validation workspace does not exist.");
         try
@@ -99,15 +98,19 @@ public sealed class SoftwareQaAgent : CSweetAgentBase
                 ?? throw new InvalidOperationException("QA requires the ticket delivery specification.");
             var output = development.Output;
             var quality = new SoftwareQualityBrief(
-                output.GetProperty("repositoryConnectionId").GetGuid(),
-                delivery.BaseBranch ?? "main",
-                output.GetProperty("sourceBranch").GetString()!,
+                output.GetProperty("repositoryId").GetGuid(),
                 output.GetProperty("commitSha").GetString()!,
-                new Uri(output.GetProperty("pullRequestUrl").GetString()!),
+                output.GetProperty("provider").GetString()!,
+                output.GetProperty("deliveryKind").GetString()!,
+                output.TryGetProperty("pullRequestUrl", out var pullRequestUrl) &&
+                pullRequestUrl.ValueKind == JsonValueKind.String
+                    ? new Uri(pullRequestUrl.GetString()!)
+                    : null,
                 delivery.Requirements, delivery.AcceptanceCriteria,
                 assignment.Traversal + 1, 10, delivery.Constraints);
             var qa = await ExecuteAssignmentAsync(
-                assignment.AttemptId, item, quality, context, cancellationToken);
+                assignment.AttemptId, assignment.AssignmentRevision,
+                item, quality, context, cancellationToken);
             var disposition = qa.Verdict == QualityVerdicts.Blocked
                 ? WorkExecutionDispositions.Blocked : WorkExecutionDispositions.Completed;
             var outcomeCode = qa.Verdict == QualityVerdicts.Passed ? "passed" :
@@ -131,22 +134,18 @@ public sealed class SoftwareQaAgent : CSweetAgentBase
     }
 
     private async Task<SoftwareQaOutcome> ExecuteAssignmentAsync(
-        Guid operationId, WorkItem item, SoftwareQualityBrief quality,
+        Guid operationId, long assignmentRevision,
+        WorkItem item, SoftwareQualityBrief quality,
         AgentRuntimeContext context, CancellationToken cancellationToken)
     {
-        var branch = quality.SourceBranch;
         await context.ReportProgressAsync(
             new { stage = "preparing", itemId = item.Id, quality.SourceCommitSha },
             cancellationToken);
         var workspace = await context.Platform.Git.PrepareAsync(
             new PrepareGitWorkspaceRequest(
-                item.Id, 0, quality.RepositoryConnectionId,
-                branch, branch, Key(operationId, "prepare"))
-            {
-                ExpectedCommitSha = quality.SourceCommitSha,
-                ResumePublishedBranch = true
-            }, cancellationToken);
-        if (!string.Equals(workspace.CheckoutCommitSha, quality.SourceCommitSha,
+                item.Id, assignmentRevision, Key(operationId, "prepare")),
+            cancellationToken);
+        if (!string.Equals(workspace.BaseCommitSha, quality.SourceCommitSha,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("Prepared workspace does not match the QA source.");
 
@@ -160,12 +159,14 @@ public sealed class SoftwareQaAgent : CSweetAgentBase
         var outcome = await ReadOutcomeAsync(path, cancellationToken);
         ValidateOutcome(outcome, quality);
         var inspection = await context.Platform.Git.InspectAsync(
-            new InspectGitWorkspaceRequest(workspace.WorkspaceId), cancellationToken);
+            new InspectGitWorkspaceRequest(workspace.WorkspaceId, assignmentRevision),
+            cancellationToken);
         if (inspection.HasTrackedChanges)
             throw new InvalidOperationException("QA modified tracked source files.");
 
         await context.Platform.Git.CleanupAsync(
-            new CleanupGitWorkspaceRequest(workspace.WorkspaceId, RetainOnFailure: false),
+            new CleanupGitWorkspaceRequest(
+                workspace.WorkspaceId, assignmentRevision, RetainOnFailure: false),
             cancellationToken);
         await context.ReportProgressAsync(
             new { stage = "completed", outcome.Verdict, quality.SourceCommitSha },
@@ -210,7 +211,7 @@ Every entry must be bounded and supported by observed evidence.
 <qa_assignment>
 {{JsonSerializer.Serialize(new {
     eventId, workItemId = item.Id, item.Title, item.Description,
-    quality.SourceBranch, quality.SourceCommitSha, quality.PullRequestUrl,
+    quality.SourceCommitSha, quality.Provider, quality.DeliveryKind, quality.PullRequestUrl,
     quality.Requirements, quality.AcceptanceCriteria, quality.Constraints,
     maximumFailureReruns = 1
 }, new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true })}}

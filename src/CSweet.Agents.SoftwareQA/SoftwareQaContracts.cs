@@ -3,8 +3,9 @@ using CSweet.WorkManagement.Contracts;
 namespace CSweet.Agents.SoftwareQA;
 
 public sealed record SoftwareQaRequest(
-    string? Repository, string? Objective, IReadOnlyList<string>? Requirements,
-    IReadOnlyList<string>? AcceptanceCriteria, string? SourceCommitSha = null);
+    string? Objective,
+    IReadOnlyList<string>? Requirements,
+    IReadOnlyList<string>? AcceptanceCriteria);
 
 public sealed record SoftwareQaResponse(
     Guid WorkId, string Verdict, string Report, DateTimeOffset CompletedAt);

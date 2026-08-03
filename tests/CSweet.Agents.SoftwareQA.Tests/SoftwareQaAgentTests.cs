@@ -83,7 +83,7 @@ public sealed class SoftwareQaAgentTests
     }
 
     private static SoftwareQualityBrief Brief() => new(
-        Guid.NewGuid(), "main", "csweet/ticket", new string('a', 40),
+        Guid.NewGuid(), new string('a', 40), "GitHub", "PullRequest",
         new Uri("https://github.com/example/repo/pull/1"),
         ["Requirement"], ["Works"], 1, 3);
 

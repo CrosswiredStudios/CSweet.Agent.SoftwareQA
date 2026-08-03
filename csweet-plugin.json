@@ -4,7 +4,7 @@
   "kind": "agent",
   "id": "com.csweet.software-qa",
   "name": "C-Sweet Software QA",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": { "id": "com.csweet", "name": "C-Sweet" },
   "runtime": {
     "type": "dotnet-project",
@@ -96,9 +96,9 @@
   "requires": [
     { "name": "platform.llm.chat-stream.v1", "scope": "organization", "purpose": "Run the bounded QA harness with an approved model" },
     { "name": "work.item.read", "scope": "work-item", "purpose": "Read only the assigned ticket and immutable quality brief" },
-    { "name": "git.workspace.prepare.v1", "scope": "work-item", "purpose": "Prepare the exact approved source commit for validation" },
-    { "name": "git.workspace.inspect.v1", "scope": "work-item", "purpose": "Verify the tested revision and detect tracked source changes" },
-    { "name": "git.workspace.cleanup.v1", "scope": "work-item", "purpose": "Remove completed QA workspaces or retain failures for bounded diagnostics" }
+    { "name": "git.workspace.prepare.v2", "scope": "work-item", "purpose": "Prepare the Core-resolved exact source commit without credentials or Git metadata" },
+    { "name": "git.workspace.inspect.v2", "scope": "work-item", "purpose": "Verify the tested revision and detect tracked source changes" },
+    { "name": "git.workspace.cleanup.v2", "scope": "work-item", "purpose": "Remove completed QA workspaces or retain failures for bounded diagnostics" }
   ],
   "events": { "subscribes": [] },
   "configuration": [

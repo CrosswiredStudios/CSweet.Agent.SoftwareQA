@@ -4,8 +4,9 @@ First-party protocol-v2 quality agent. It validates the exact PR commit assigned
 traces evidence to acceptance criteria, and submits a structured `Passed`, `Failed`, or `Blocked`
 verdict to the deterministic delivery coordinator.
 
-The agent never edits product source, fixes defects, pushes, merges, deploys, or handles
-credentials. C-Sweet owns defect creation, rework routing, governed merge, ticket completion, and
+The agent never receives repository credentials or Git metadata, edits product source, fixes
+defects, pushes, merges, or deploys. C-Sweet owns source materialization, defect creation, rework
+routing, governed merge, ticket completion, and
 sprint sequencing.
 
 `maxQaReworkCycles` defaults to 3 and is configurable from 0 through 20 in installation settings.
@@ -17,4 +18,4 @@ dotnet test CSweet.Agents.SoftwareQA.slnx
 dotnet run --project src/CSweet.Agents.SoftwareQA -- --self-test
 ```
 
-Built with `CSweet.Agent.SDK` 2.7.0 and manifest protocol v2.
+Built with `CSweet.Agent.SDK` 3.0.0 and manifest protocol v2.
