@@ -17,6 +17,21 @@ public sealed class SoftwareQaAgentTests
         Assert.Equal(SoftwareQaProfile.AgentId, manifest.Id);
         Assert.Equal(SoftwareQaProfile.Version, manifest.Version);
         Assert.Contains(WorkManagementCapabilityNames.ExecutionRunV1, manifest.Capabilities);
+        using var document = System.Text.Json.JsonDocument.Parse(
+            await File.ReadAllTextAsync(Path.Combine(RepositoryRoot(), "csweet-plugin.json")));
+        var configuration = document.RootElement.GetProperty("configuration").EnumerateArray().ToArray();
+        Assert.Equal(
+            SoftwareQaHarness.MaxContextWindowTokens,
+            configuration.Single(field => field.GetProperty("key").GetString() == "maxContextWindowTokens")
+                .GetProperty("defaultValue").GetInt32());
+        Assert.Equal(
+            SoftwareQaHarness.MaxOutputTokens,
+            configuration.Single(field => field.GetProperty("key").GetString() == "maxOutputTokens")
+                .GetProperty("defaultValue").GetInt32());
+        Assert.Equal(
+            3,
+            configuration.Single(field => field.GetProperty("key").GetString() == "maxQaReworkCycles")
+                .GetProperty("defaultValue").GetInt32());
         Assert.True(schema.Succeeded);
         Assert.Equal(
             [

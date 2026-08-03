@@ -104,9 +104,9 @@
   "configuration": [
     { "key": "llmProviderId", "type": "provider", "label": "LLM provider", "required": true, "secret": false },
     { "key": "llmModel", "type": "model", "label": "Model", "required": true, "secret": false },
-    { "key": "maxContextWindowTokens", "type": "number", "label": "Maximum context-window tokens", "required": true, "secret": false },
-    { "key": "maxOutputTokens", "type": "number", "label": "Maximum output tokens", "required": true, "secret": false },
-    { "key": "maxQaReworkCycles", "type": "number", "label": "Maximum QA rework cycles", "required": true, "secret": false },
+    { "key": "maxContextWindowTokens", "type": "number", "label": "Maximum context-window tokens", "required": true, "secret": false, "defaultValue": 128000 },
+    { "key": "maxOutputTokens", "type": "number", "label": "Maximum output tokens", "required": true, "secret": false, "defaultValue": 16000 },
+    { "key": "maxQaReworkCycles", "type": "number", "label": "Maximum QA rework cycles", "required": true, "secret": false, "defaultValue": 3 },
     { "key": "customInstructions", "type": "textarea", "label": "Custom instructions", "required": false, "secret": false }
   ],
   "credentials": [],
