@@ -18,4 +18,4 @@ dotnet test CSweet.Agents.SoftwareQA.slnx
 dotnet run --project src/CSweet.Agents.SoftwareQA -- --self-test
 ```
 
-Built with `CSweet.Agent.SDK` 3.0.0 and manifest protocol v2.
+Built with `CSweet.Agent.SDK` 3.1.1 and manifest protocol v2.
