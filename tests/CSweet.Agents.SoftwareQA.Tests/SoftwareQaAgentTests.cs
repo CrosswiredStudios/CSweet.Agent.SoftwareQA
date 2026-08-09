@@ -35,6 +35,14 @@ public sealed class SoftwareQaAgentTests
         Assert.True(schema.Succeeded);
         Assert.Equal(
             [
+                PersonalTodoCapabilities.Read,
+                PersonalTodoCapabilities.Add,
+                PersonalTodoCapabilities.Reorder,
+                PersonalTodoCapabilities.Requeue,
+                PersonalTodoCapabilities.Claim,
+                PersonalTodoCapabilities.Complete,
+                PersonalTodoCapabilities.Block,
+                PersonalTodoCapabilities.Release,
                 PlatformCapabilities.LlmChatStream,
                 WorkItemCapabilities.Read,
                 GitWorkspaceCapabilities.Prepare,
@@ -42,7 +50,9 @@ public sealed class SoftwareQaAgentTests
                 GitWorkspaceCapabilities.Cleanup
             ],
             manifest.Requires.Select(x => x.Name).ToArray());
-        Assert.Empty(manifest.Events.Subscribes);
+        Assert.Equal(
+            [PersonalTodoEvents.Available, CommunicationEvents.MessageMentioned],
+            manifest.Events.Subscribes);
     }
 
     [Fact]

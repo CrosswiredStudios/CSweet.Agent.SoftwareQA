@@ -4,7 +4,7 @@
   "kind": "agent",
   "id": "com.csweet.software-qa",
   "name": "C-Sweet Software QA",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": { "id": "com.csweet", "name": "C-Sweet" },
   "runtime": {
     "type": "dotnet-project",
@@ -94,13 +94,21 @@
     }
   ],
   "requires": [
+    { "name": "work.personal-todo.read.v1", "scope": "organization", "purpose": "Read resource-scoped personal queues" },
+    { "name": "work.personal-todo.add.v1", "scope": "organization", "purpose": "Add self or direct-report personal work" },
+    { "name": "work.personal-todo.reorder.v1", "scope": "organization", "purpose": "Reorder directly managed personal work" },
+    { "name": "work.personal-todo.requeue.v1", "scope": "organization", "purpose": "Requeue blocked personal work" },
+    { "name": "work.personal-todo.claim.v1", "scope": "organization", "purpose": "SDK-managed atomic personal work claims" },
+    { "name": "work.personal-todo.complete.v1", "scope": "organization", "purpose": "SDK-managed personal work completion" },
+    { "name": "work.personal-todo.block.v1", "scope": "organization", "purpose": "SDK-managed durable personal work blocking" },
+    { "name": "work.personal-todo.release.v1", "scope": "organization", "purpose": "SDK-managed personal work release" },
     { "name": "platform.llm.chat-stream.v1", "scope": "organization", "purpose": "Run the bounded QA harness with an approved model" },
     { "name": "work.item.read", "scope": "work-item", "purpose": "Read only the assigned ticket and immutable quality brief" },
     { "name": "git.workspace.prepare.v2", "scope": "work-item", "purpose": "Prepare the Core-resolved exact source commit without credentials or Git metadata" },
     { "name": "git.workspace.inspect.v2", "scope": "work-item", "purpose": "Verify the tested revision and detect tracked source changes" },
     { "name": "git.workspace.cleanup.v2", "scope": "work-item", "purpose": "Remove completed QA workspaces or retain failures for bounded diagnostics" }
   ],
-  "events": { "subscribes": [] },
+  "events": { "subscribes": ["com.csweet.work.personal-todo.available.v1", "com.csweet.communication.message.mentioned.v1"] },
   "configuration": [
     { "key": "llmProviderId", "type": "provider", "label": "LLM provider", "required": true, "secret": false },
     { "key": "llmModel", "type": "model", "label": "Model", "required": true, "secret": false },

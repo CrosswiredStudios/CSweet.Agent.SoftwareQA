@@ -25,6 +25,11 @@ public sealed class SoftwareQaAgent : CSweetAgentBase
     public override string AgentId => SoftwareQaProfile.AgentId;
     public override string Version => SoftwareQaProfile.Version;
 
+    public override Task<PersonalTodoResult> HandlePersonalTodoAsync(
+        PersonalTodoItem item, AgentRuntimeContext context, CancellationToken cancellationToken) =>
+        Task.FromResult(PersonalTodoResult.Blocked(
+            "Software QA requires an immutable revision and approved quality brief; free-form personal queue requests are unsupported."));
+
     protected override AgentConfigurationBuilder Configure(AgentConfigurationBuilder builder) =>
         builder
             .LlmProvider("llmProviderId", "LLM provider", required: true,
