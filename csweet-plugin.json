@@ -2,9 +2,14 @@
   "$schema": "https://raw.githubusercontent.com/CrosswiredStudios/CSweetAgentSdk/main/schemas/csweet-plugin.v2.schema.json",
   "manifestVersion": "2.0",
   "kind": "agent",
+  "rolePolicy": {
+    "profile": "independent-reviewer.v1",
+    "declaredRoleKeys": ["software-qa"],
+    "specializationKeys": ["software-testing", "release-validation"]
+  },
   "id": "com.csweet.software-qa",
   "name": "C-Sweet Software QA",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publisher": { "id": "com.csweet", "name": "C-Sweet" },
   "runtime": {
     "type": "dotnet-project",
