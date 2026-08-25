@@ -3,7 +3,7 @@ namespace CSweet.Agents.SoftwareQA;
 public static class SoftwareQaProfile
 {
     public const string AgentId = "com.csweet.software-qa";
-    public const string Version = "0.5.0";
+    public const string Version = "0.5.1";
     public const string DisplayName = "C-Sweet Software QA";
     public const string PrimaryCapability = "software-quality.validate.v1";
 

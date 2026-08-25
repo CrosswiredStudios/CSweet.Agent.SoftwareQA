@@ -18,6 +18,6 @@ dotnet test CSweet.Agents.SoftwareQA.slnx
 dotnet run --project src/CSweet.Agents.SoftwareQA -- --self-test
 ```
 
-Built with `CSweet.Agent.SDK` 3.19.0 and manifest protocol v2. The manifest declares the
+Built with `CSweet.Agent.SDK` 3.19.1, `CSweet.WorkManagement.Contracts` 3.10.0, and manifest protocol v2. The manifest declares the
 canonical `software-qa` role category; testing and release-validation specializations are
 preferences, not eligibility requirements.
