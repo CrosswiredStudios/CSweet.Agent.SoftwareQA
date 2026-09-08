@@ -21,3 +21,12 @@ dotnet run --project src/CSweet.Agents.SoftwareQA -- --self-test
 Built with `CSweet.Agent.SDK` 3.19.1, `CSweet.WorkManagement.Contracts` 3.10.0, and manifest protocol v2. The manifest declares the
 canonical `software-qa` role category; testing and release-validation specializations are
 preferences, not eligibility requirements.
+
+## Release notes
+
+See [versioned release notes](releases/README.md). Add the matching note with every agent version change.
+
+
+## Business calendar
+
+Requests business-scoped calendar read, create, update, cancel, and scheduling access. Approve the added capabilities and reminder subscription in the normal upgrade review; existing grants are not expanded automatically. Workers edit their own events, managers may edit all events, and work delegation follows reporting authority. Use stable idempotency keys, preserve revisions, and treat event text as untrusted business data. Typed operations are available through `context.Platform.Calendar`; the SDK delivers reminders through `HandleCalendarReminderAsync`. Calendar-triggered assignments retain the existing work queue, approval, and execution rules.

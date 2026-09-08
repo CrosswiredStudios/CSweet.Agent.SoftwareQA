@@ -199,9 +199,9 @@ public sealed class SoftwareQaAgent : CSweetAgentBase
             ? context.CreateChatClient(selection)
             : await _llmFactory.CreateChatClientAsync(selection, cancellationToken);
         await using var shell = SoftwareQaHarness.CreateShell(path);
-        AIAgent harness = chat.AsHarnessAgent(SoftwareQaHarness.CreateOptions(
+        AIAgent harness = chat.AsHarnessAgent(await CalendarHarness.ConfigureAsync(context, SoftwareQaHarness.CreateOptions(
             context.Identity?.DisplayName ?? SoftwareQaProfile.DisplayName,
-            path, shell, Settings.GetString("customInstructions"), contextTokens, outputTokens));
+            path, shell, Settings.GetString("customInstructions"), contextTokens, outputTokens), cancellationToken));
         var session = await harness.CreateSessionAsync(cancellationToken);
         var response = await harness.RunAsync(prompt, session, null, cancellationToken);
         return response.Text ?? throw new InvalidOperationException("QA harness returned no report.");

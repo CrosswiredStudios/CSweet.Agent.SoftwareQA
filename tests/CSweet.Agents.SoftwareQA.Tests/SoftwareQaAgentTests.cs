@@ -34,7 +34,7 @@ public sealed class SoftwareQaAgentTests
                 .GetProperty("defaultValue").GetInt32());
         Assert.True(schema.Succeeded);
         Assert.Equal(
-            [
+            ["work.calendar.read.v1", "work.calendar.create.v1", "work.calendar.update.v1", "work.calendar.cancel.v1", "work.calendar.schedule.v1", 
                 PersonalTodoCapabilities.Read,
                 PersonalTodoCapabilities.Add,
                 PersonalTodoCapabilities.Reorder,
@@ -51,7 +51,7 @@ public sealed class SoftwareQaAgentTests
             ],
             manifest.Requires.Select(x => x.Name).ToArray());
         Assert.Equal(
-            [PersonalTodoEvents.Available, CommunicationEvents.MessageMentioned],
+            ["com.csweet.calendar.reminder-due.v1", PersonalTodoEvents.Available, CommunicationEvents.MessageMentioned],
             manifest.Events.Subscribes);
     }
 

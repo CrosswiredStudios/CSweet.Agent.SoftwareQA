@@ -9,7 +9,7 @@
   },
   "id": "com.csweet.software-qa",
   "name": "Priya Shah",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "publisher": { "id": "com.csweet", "name": "C-Sweet" },
   "runtime": {
     "type": "dotnet-project",
@@ -99,6 +99,11 @@
     }
   ],
   "requires": [
+    {"name": "work.calendar.read.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
+    {"name": "work.calendar.create.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
+    {"name": "work.calendar.update.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
+    {"name": "work.calendar.cancel.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
+    {"name": "work.calendar.schedule.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
     { "name": "work.personal-todo.read.v1", "scope": "organization", "purpose": "Read resource-scoped personal queues" },
     { "name": "work.personal-todo.add.v1", "scope": "organization", "purpose": "Add self or direct-report personal work" },
     { "name": "work.personal-todo.reorder.v1", "scope": "organization", "purpose": "Reorder directly managed personal work" },
@@ -113,7 +118,7 @@
     { "name": "git.workspace.inspect.v2", "scope": "work-item", "purpose": "Verify the tested revision and detect tracked source changes" },
     { "name": "git.workspace.cleanup.v2", "scope": "work-item", "purpose": "Remove completed QA workspaces or retain failures for bounded diagnostics" }
   ],
-  "events": { "subscribes": ["com.csweet.work.personal-todo.available.v1", "com.csweet.communication.message.mentioned.v1"] },
+  "events": { "subscribes": ["com.csweet.calendar.reminder-due.v1", "com.csweet.work.personal-todo.available.v1", "com.csweet.communication.message.mentioned.v1"] },
   "configuration": [
     { "key": "llmProviderId", "type": "provider", "label": "LLM provider", "required": true, "secret": false },
     { "key": "llmModel", "type": "model", "label": "Model", "required": true, "secret": false },
