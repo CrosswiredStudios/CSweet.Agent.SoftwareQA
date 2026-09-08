@@ -8,7 +8,7 @@
     "specializationKeys": ["software-testing", "release-validation"]
   },
   "id": "com.csweet.software-qa",
-  "name": "C-Sweet Software QA",
+  "name": "Priya Shah",
   "version": "0.5.1",
   "publisher": { "id": "com.csweet", "name": "C-Sweet" },
   "runtime": {
@@ -137,6 +137,9 @@
     { "kind": "form", "id": "software-qa-settings", "title": "Software QA settings", "capability": "agent.configuration.update.v1" }
   ],
   "catalog": {
+    "imageUrl": "https://raw.githubusercontent.com/CrosswiredStudios/CSweet.Agent.SoftwareQA/main/assets/branding/portrait-v1.jpg",
+    "companyLogoUrl": "https://raw.githubusercontent.com/CrosswiredStudios/CSweet.Agent.SoftwareQA/main/assets/branding/csweet-icon.svg",
+    "accentColor": "#397973",
     "summary": "Independently validates software revisions, reports reproducible defects, and supplies merge-gating evidence.",
     "category": "Engineering",
     "role": { "key": "software-qa", "name": "Software QA" },
