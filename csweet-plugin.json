@@ -9,7 +9,7 @@
   },
   "id": "com.csweet.software-qa",
   "name": "Priya Shah",
-  "version": "0.6.0",
+  "version": "0.8.0",
   "publisher": { "id": "com.csweet", "name": "C-Sweet" },
   "runtime": {
     "type": "dotnet-project",
@@ -23,6 +23,13 @@
   },
   "protocol": { "minimumVersion": "2.0", "maximumVersion": "2.x" },
   "provides": [
+    {
+      "name": "web-preview.finding.triage.v1",
+      "description": "Analyze one assigned, sanitized private-preview finding and create a deduplicated planning ticket under existing board permissions when evidence establishes a defect.",
+      "inputSchema": {"type":"object","properties":{"findingId":{"type":"string","format":"uuid"},"projectId":{"type":"string","format":"uuid"},"boardId":{"type":"string","format":"uuid"}},"required":["findingId","projectId","boardId"],"additionalProperties":false},
+      "outputSchema": {"type":"object","additionalProperties":true},
+      "executionTimeoutSeconds": 600, "idempotency": "work-item", "riskClass": "elevated"
+    },
     {
       "name": "work.execution.run.v1",
       "description": "Execute one pinned board QA stage and return a structured outcome without mutating the card transition.",
@@ -99,6 +106,10 @@
     }
   ],
   "requires": [
+    {"name":"web-preview.finding.read.v1","scope":"workstream","purpose":"Read canonical evidence for an owner-assigned preview finding."},
+    {"name":"web-preview.finding.ticket.v1","scope":"workstream","purpose":"Copy evidence into one deduplicated planning ticket for an assigned finding."},
+    {"name":"work.item.create","scope":"board","purpose":"Create preview defect planning tickets only on an explicitly granted board."},
+    {"name":"work.item.types.read.v1","scope":"board","purpose":"Choose an allowed planning ticket type on the assigned triage board."},
     {"name": "work.calendar.read.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
     {"name": "work.calendar.create.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
     {"name": "work.calendar.update.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},

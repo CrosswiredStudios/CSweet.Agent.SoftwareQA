@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Exe</OutputType><Version>0.6.0</Version></PropertyGroup>
+  <PropertyGroup><OutputType>Exe</OutputType><Version>0.8.0</Version></PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CSweet.Agent.SDK" Version="3.40.0" Condition="'$(UseLocalCSweetAgentSdk)' != 'true'" />
     <PackageReference Include="CSweet.WorkManagement.Contracts" Version="3.20.0" Condition="'$(UseLocalCSweetWorkManagementContracts)' != 'true'" />
@@ -15,5 +15,9 @@
   <ItemGroup>
     <Content Include="..\..\csweet-plugin.json" Link="csweet-plugin.json"
              CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CSweet.WebHost.Contracts" Version="0.3.0" Condition="'$(UseLocalWebHostContracts)' != 'true'" />
+    <ProjectReference Include="$(CSweetWebHostContractsRepositoryRoot)\src\CSweet.WebHost.Contracts\CSweet.WebHost.Contracts.csproj" Condition="'$(UseLocalWebHostContracts)' == 'true'" />
   </ItemGroup>
 </Project>

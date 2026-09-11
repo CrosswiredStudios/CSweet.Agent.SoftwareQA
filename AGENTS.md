@@ -1,6 +1,6 @@
 # C-Sweet Software QA repository instructions
 
-This is one standalone protocol-v2 agent. Keep `com.csweet.software-qa` and version `0.6.0`
+This is one standalone protocol-v2 agent. Keep `com.csweet.software-qa` and version `0.8.0`
 synchronized across code, manifest, tests, and documentation.
 
 - Follow the canonical `AGENT_AUTHORING.md` from `CSweet.Agent.SDK`.

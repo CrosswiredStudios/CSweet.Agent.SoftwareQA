@@ -408,3 +408,8 @@ FodyWeavers.xsd
 **/*.gguf
 **/*.bin
 **/*.safetensors
+
+# Versioned agent release notes are source documentation.
+!/releases/
+/releases/*
+!/releases/*.md

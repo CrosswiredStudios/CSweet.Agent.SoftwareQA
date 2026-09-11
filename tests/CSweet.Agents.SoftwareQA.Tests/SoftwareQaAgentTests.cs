@@ -34,7 +34,7 @@ public sealed class SoftwareQaAgentTests
                 .GetProperty("defaultValue").GetInt32());
         Assert.True(schema.Succeeded);
         Assert.Equal(
-            ["work.calendar.read.v1", "work.calendar.create.v1", "work.calendar.update.v1", "work.calendar.cancel.v1", "work.calendar.schedule.v1", 
+            ["web-preview.finding.read.v1", "web-preview.finding.ticket.v1", "work.item.create", "work.item.types.read.v1", "work.calendar.read.v1", "work.calendar.create.v1", "work.calendar.update.v1", "work.calendar.cancel.v1", "work.calendar.schedule.v1",
                 PersonalTodoCapabilities.Read,
                 PersonalTodoCapabilities.Add,
                 PersonalTodoCapabilities.Reorder,
