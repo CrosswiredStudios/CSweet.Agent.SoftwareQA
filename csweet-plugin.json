@@ -4,13 +4,21 @@
   "kind": "agent",
   "rolePolicy": {
     "profile": "independent-reviewer.v1",
-    "declaredRoleKeys": ["software-qa"],
-    "specializationKeys": ["software-testing", "release-validation"]
+    "declaredRoleKeys": [
+      "software-qa"
+    ],
+    "specializationKeys": [
+      "software-testing",
+      "release-validation"
+    ]
   },
   "id": "com.csweet.software-qa",
   "name": "Priya Shah",
-  "version": "0.8.0",
-  "publisher": { "id": "com.csweet", "name": "C-Sweet" },
+  "version": "1.0.0",
+  "publisher": {
+    "id": "com.csweet",
+    "name": "C-Sweet"
+  },
   "runtime": {
     "type": "dotnet-project",
     "projectPath": "src/CSweet.Agents.SoftwareQA/CSweet.Agents.SoftwareQA.csproj",
@@ -21,26 +29,38 @@
     "environmentProfile": "software-development-polyglot-v1",
     "workspaceAccess": "ReadWrite"
   },
-  "protocol": { "minimumVersion": "2.0", "maximumVersion": "2.x" },
+  "protocol": {
+    "minimumVersion": "2.0",
+    "maximumVersion": "2.x"
+  },
   "provides": [
-    {
-      "name": "web-preview.finding.triage.v1",
-      "description": "Analyze one assigned, sanitized private-preview finding and create a deduplicated planning ticket under existing board permissions when evidence establishes a defect.",
-      "inputSchema": {"type":"object","properties":{"findingId":{"type":"string","format":"uuid"},"projectId":{"type":"string","format":"uuid"},"boardId":{"type":"string","format":"uuid"}},"required":["findingId","projectId","boardId"],"additionalProperties":false},
-      "outputSchema": {"type":"object","additionalProperties":true},
-      "executionTimeoutSeconds": 600, "idempotency": "work-item", "riskClass": "elevated"
-    },
     {
       "name": "work.execution.run.v1",
       "description": "Execute one pinned board QA stage and return a structured outcome without mutating the card transition.",
       "inputSchema": {
         "type": "object",
-        "required": ["stageExecutionId", "attemptId", "boardId", "itemId", "stageKey", "priorOutcomes"],
+        "required": [
+          "stageExecutionId",
+          "attemptId",
+          "boardId",
+          "itemId",
+          "stageKey",
+          "priorOutcomes"
+        ],
         "additionalProperties": true
       },
       "outputSchema": {
         "type": "object",
-        "required": ["stageExecutionId", "attemptId", "disposition", "outcomeCode", "summary", "output", "evidence", "diagnostics"],
+        "required": [
+          "stageExecutionId",
+          "attemptId",
+          "disposition",
+          "outcomeCode",
+          "summary",
+          "output",
+          "evidence",
+          "diagnostics"
+        ],
         "additionalProperties": true
       },
       "executionTimeoutSeconds": 1800,
@@ -51,24 +71,79 @@
       "name": "software-quality.validate.v1",
       "description": "Validate an immutable software revision against approved acceptance criteria and return bounded evidence.",
       "inputSchema": {
-        "type": "object", "additionalProperties": false,
-        "required": ["repository", "objective", "requirements", "acceptanceCriteria"],
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "repository",
+          "objective",
+          "requirements",
+          "acceptanceCriteria"
+        ],
         "properties": {
-          "repository": { "type": "string", "minLength": 1, "maxLength": 500 },
-          "objective": { "type": "string", "minLength": 1, "maxLength": 8000 },
-          "requirements": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "type": "string", "minLength": 1, "maxLength": 4000 } },
-          "acceptanceCriteria": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "type": "string", "minLength": 1, "maxLength": 4000 } },
-          "sourceCommitSha": { "type": ["string", "null"], "maxLength": 64 }
+          "repository": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "objective": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "requirements": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000
+            }
+          },
+          "acceptanceCriteria": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000
+            }
+          },
+          "sourceCommitSha": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 64
+          }
         }
       },
       "outputSchema": {
-        "type": "object", "additionalProperties": false,
-        "required": ["workId", "verdict", "report", "completedAt"],
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "workId",
+          "verdict",
+          "report",
+          "completedAt"
+        ],
         "properties": {
-          "workId": { "type": "string", "format": "uuid" },
-          "verdict": { "type": "string" },
-          "report": { "type": "string", "minLength": 1 },
-          "completedAt": { "type": "string", "format": "date-time" }
+          "workId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "verdict": {
+            "type": "string"
+          },
+          "report": {
+            "type": "string",
+            "minLength": 1
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "executionTimeoutSeconds": 900,
@@ -78,79 +153,283 @@
     {
       "name": "agent.configuration.describe.v1",
       "description": "Describe Software QA configuration.",
-      "inputSchema": { "type": "object", "additionalProperties": false },
-      "outputSchema": { "type": "object", "additionalProperties": true },
-      "executionTimeoutSeconds": 30, "idempotency": "none", "riskClass": "standard"
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "executionTimeoutSeconds": 30,
+      "idempotency": "none",
+      "riskClass": "standard"
     },
     {
       "name": "agent.configuration.update.v1",
       "description": "Update Software QA configuration.",
       "inputSchema": {
-        "type": "object", "additionalProperties": false, "required": ["settings"],
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "settings"
+        ],
         "properties": {
           "settings": {
-            "type": "object", "additionalProperties": false,
+            "type": "object",
+            "additionalProperties": false,
             "properties": {
-              "llmProviderId": { "type": "string" },
-              "llmModel": { "type": "string" },
-              "maxContextWindowTokens": { "type": "number", "minimum": 16000, "maximum": 2000000 },
-              "maxOutputTokens": { "type": "number", "minimum": 1000, "maximum": 200000 },
-              "maxQaReworkCycles": { "type": "number", "minimum": 0, "maximum": 20 },
-              "customInstructions": { "type": "string" }
+              "llmProviderId": {
+                "type": "string"
+              },
+              "llmModel": {
+                "type": "string"
+              },
+              "maxContextWindowTokens": {
+                "type": "number",
+                "minimum": 16000,
+                "maximum": 2000000
+              },
+              "maxOutputTokens": {
+                "type": "number",
+                "minimum": 1000,
+                "maximum": 200000
+              },
+              "maxQaReworkCycles": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 20
+              },
+              "customInstructions": {
+                "type": "string"
+              }
             }
           }
         }
       },
-      "outputSchema": { "type": "object", "additionalProperties": true },
-      "executionTimeoutSeconds": 30, "idempotency": "work-item", "riskClass": "standard"
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "executionTimeoutSeconds": 30,
+      "idempotency": "work-item",
+      "riskClass": "standard"
     }
   ],
   "requires": [
-    {"name":"web-preview.finding.read.v1","scope":"workstream","purpose":"Read canonical evidence for an owner-assigned preview finding."},
-    {"name":"web-preview.finding.ticket.v1","scope":"workstream","purpose":"Copy evidence into one deduplicated planning ticket for an assigned finding."},
-    {"name":"work.item.create","scope":"board","purpose":"Create preview defect planning tickets only on an explicitly granted board."},
-    {"name":"work.item.types.read.v1","scope":"board","purpose":"Choose an allowed planning ticket type on the assigned triage board."},
-    {"name": "work.calendar.read.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
-    {"name": "work.calendar.create.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
-    {"name": "work.calendar.update.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
-    {"name": "work.calendar.cancel.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
-    {"name": "work.calendar.schedule.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
-    { "name": "work.personal-todo.read.v1", "scope": "organization", "purpose": "Read resource-scoped personal queues" },
-    { "name": "work.personal-todo.add.v1", "scope": "organization", "purpose": "Add self or direct-report personal work" },
-    { "name": "work.personal-todo.reorder.v1", "scope": "organization", "purpose": "Reorder directly managed personal work" },
-    { "name": "work.personal-todo.requeue.v1", "scope": "organization", "purpose": "Requeue blocked personal work" },
-    { "name": "work.personal-todo.claim.v1", "scope": "organization", "purpose": "SDK-managed atomic personal work claims" },
-    { "name": "work.personal-todo.complete.v1", "scope": "organization", "purpose": "SDK-managed personal work completion" },
-    { "name": "work.personal-todo.block.v1", "scope": "organization", "purpose": "SDK-managed durable personal work blocking" },
-    { "name": "work.personal-todo.release.v1", "scope": "organization", "purpose": "SDK-managed personal work release" },
-    { "name": "platform.llm.chat-stream.v1", "scope": "organization", "purpose": "Run the bounded QA harness with an approved model" },
-    { "name": "work.item.read", "scope": "work-item", "purpose": "Read only the assigned ticket and immutable quality brief" },
-    { "name": "git.workspace.prepare.v2", "scope": "work-item", "purpose": "Prepare the Core-resolved exact source commit without credentials or Git metadata" },
-    { "name": "git.workspace.inspect.v2", "scope": "work-item", "purpose": "Verify the tested revision and detect tracked source changes" },
-    { "name": "git.workspace.cleanup.v2", "scope": "work-item", "purpose": "Remove completed QA workspaces or retain failures for bounded diagnostics" }
+    {
+      "name": "work.item.create",
+      "scope": "board",
+      "purpose": "Create preview defect planning tickets only on an explicitly granted board."
+    },
+    {
+      "name": "work.item.types.read.v1",
+      "scope": "board",
+      "purpose": "Choose an allowed planning ticket type on the assigned triage board."
+    },
+    {
+      "name": "work.calendar.read.v1",
+      "scope": "organization",
+      "purpose": "Operate the business calendar within event ownership and reporting authority."
+    },
+    {
+      "name": "work.calendar.create.v1",
+      "scope": "organization",
+      "purpose": "Operate the business calendar within event ownership and reporting authority."
+    },
+    {
+      "name": "work.calendar.update.v1",
+      "scope": "organization",
+      "purpose": "Operate the business calendar within event ownership and reporting authority."
+    },
+    {
+      "name": "work.calendar.cancel.v1",
+      "scope": "organization",
+      "purpose": "Operate the business calendar within event ownership and reporting authority."
+    },
+    {
+      "name": "work.calendar.schedule.v1",
+      "scope": "organization",
+      "purpose": "Operate the business calendar within event ownership and reporting authority."
+    },
+    {
+      "name": "work.personal-todo.read.v1",
+      "scope": "organization",
+      "purpose": "Read resource-scoped personal queues"
+    },
+    {
+      "name": "work.personal-todo.add.v1",
+      "scope": "organization",
+      "purpose": "Add self or direct-report personal work"
+    },
+    {
+      "name": "work.personal-todo.reorder.v1",
+      "scope": "organization",
+      "purpose": "Reorder directly managed personal work"
+    },
+    {
+      "name": "work.personal-todo.requeue.v1",
+      "scope": "organization",
+      "purpose": "Requeue blocked personal work"
+    },
+    {
+      "name": "work.personal-todo.claim.v1",
+      "scope": "organization",
+      "purpose": "SDK-managed atomic personal work claims"
+    },
+    {
+      "name": "work.personal-todo.complete.v1",
+      "scope": "organization",
+      "purpose": "SDK-managed personal work completion"
+    },
+    {
+      "name": "work.personal-todo.block.v1",
+      "scope": "organization",
+      "purpose": "SDK-managed durable personal work blocking"
+    },
+    {
+      "name": "work.personal-todo.release.v1",
+      "scope": "organization",
+      "purpose": "SDK-managed personal work release"
+    },
+    {
+      "name": "platform.llm.chat-stream.v1",
+      "scope": "organization",
+      "purpose": "Run the bounded QA harness with an approved model"
+    },
+    {
+      "name": "work.item.read",
+      "scope": "work-item",
+      "purpose": "Read only the assigned ticket and immutable quality brief"
+    },
+    {
+      "name": "git.workspace.prepare.v2",
+      "scope": "work-item",
+      "purpose": "Prepare the Core-resolved exact source commit without credentials or Git metadata"
+    },
+    {
+      "name": "git.workspace.inspect.v2",
+      "scope": "work-item",
+      "purpose": "Verify the tested revision and detect tracked source changes"
+    },
+    {
+      "name": "git.workspace.cleanup.v2",
+      "scope": "work-item",
+      "purpose": "Remove completed QA workspaces or retain failures for bounded diagnostics"
+    }
   ],
-  "events": { "subscribes": ["com.csweet.calendar.reminder-due.v1", "com.csweet.work.personal-todo.available.v1", "com.csweet.communication.message.mentioned.v1"] },
+  "events": {
+    "subscribes": [
+      "com.csweet.calendar.reminder-due.v1",
+      "com.csweet.work.personal-todo.available.v1",
+      "com.csweet.communication.message.mentioned.v1"
+    ]
+  },
   "configuration": [
-    { "key": "llmProviderId", "type": "provider", "label": "LLM provider", "required": true, "secret": false },
-    { "key": "llmModel", "type": "model", "label": "Model", "required": true, "secret": false },
-    { "key": "maxContextWindowTokens", "type": "number", "label": "Maximum context-window tokens", "required": true, "secret": false, "defaultValue": 128000 },
-    { "key": "maxOutputTokens", "type": "number", "label": "Maximum output tokens", "required": true, "secret": false, "defaultValue": 16000 },
-    { "key": "maxQaReworkCycles", "type": "number", "label": "Maximum QA rework cycles", "required": true, "secret": false, "defaultValue": 3 },
-    { "key": "customInstructions", "type": "textarea", "label": "Custom instructions", "required": false, "secret": false }
+    {
+      "key": "llmProviderId",
+      "type": "provider",
+      "label": "LLM provider",
+      "required": true,
+      "secret": false
+    },
+    {
+      "key": "llmModel",
+      "type": "model",
+      "label": "Model",
+      "required": true,
+      "secret": false
+    },
+    {
+      "key": "maxContextWindowTokens",
+      "type": "number",
+      "label": "Maximum context-window tokens",
+      "required": true,
+      "secret": false,
+      "defaultValue": 128000
+    },
+    {
+      "key": "maxOutputTokens",
+      "type": "number",
+      "label": "Maximum output tokens",
+      "required": true,
+      "secret": false,
+      "defaultValue": 16000
+    },
+    {
+      "key": "maxQaReworkCycles",
+      "type": "number",
+      "label": "Maximum QA rework cycles",
+      "required": true,
+      "secret": false,
+      "defaultValue": 3
+    },
+    {
+      "key": "customInstructions",
+      "type": "textarea",
+      "label": "Custom instructions",
+      "required": false,
+      "secret": false
+    }
   ],
   "credentials": [],
   "webAccess": {
     "mode": "Allowlist",
     "rules": [
-      { "scheme": "https", "host": "api.nuget.org", "port": 443, "pathPrefix": "/", "methods": ["GET"], "protocol": "http", "purpose": "Restore approved NuGet dependencies" },
-      { "scheme": "https", "host": "registry.npmjs.org", "port": 443, "pathPrefix": "/", "methods": ["GET"], "protocol": "http", "purpose": "Restore approved npm dependencies" },
-      { "scheme": "https", "host": "pypi.org", "port": 443, "pathPrefix": "/", "methods": ["GET"], "protocol": "http", "purpose": "Resolve approved Python dependencies" },
-      { "scheme": "https", "host": "files.pythonhosted.org", "port": 443, "pathPrefix": "/", "methods": ["GET"], "protocol": "http", "purpose": "Download approved Python dependencies" }
+      {
+        "scheme": "https",
+        "host": "api.nuget.org",
+        "port": 443,
+        "pathPrefix": "/",
+        "methods": [
+          "GET"
+        ],
+        "protocol": "http",
+        "purpose": "Restore approved NuGet dependencies"
+      },
+      {
+        "scheme": "https",
+        "host": "registry.npmjs.org",
+        "port": 443,
+        "pathPrefix": "/",
+        "methods": [
+          "GET"
+        ],
+        "protocol": "http",
+        "purpose": "Restore approved npm dependencies"
+      },
+      {
+        "scheme": "https",
+        "host": "pypi.org",
+        "port": 443,
+        "pathPrefix": "/",
+        "methods": [
+          "GET"
+        ],
+        "protocol": "http",
+        "purpose": "Resolve approved Python dependencies"
+      },
+      {
+        "scheme": "https",
+        "host": "files.pythonhosted.org",
+        "port": 443,
+        "pathPrefix": "/",
+        "methods": [
+          "GET"
+        ],
+        "protocol": "http",
+        "purpose": "Download approved Python dependencies"
+      }
     ],
     "purpose": "Restore dependencies through the C-Sweet egress gateway"
   },
   "ui": [
-    { "kind": "form", "id": "software-qa-settings", "title": "Software QA settings", "capability": "agent.configuration.update.v1" }
+    {
+      "kind": "form",
+      "id": "software-qa-settings",
+      "title": "Software QA settings",
+      "capability": "agent.configuration.update.v1"
+    }
   ],
   "catalog": {
     "imageUrl": "https://raw.githubusercontent.com/CrosswiredStudios/CSweet.Agent.SoftwareQA/main/assets/branding/portrait-v1.jpg",
@@ -158,11 +437,24 @@
     "accentColor": "#397973",
     "summary": "Independently validates software revisions, reports reproducible defects, and supplies merge-gating evidence.",
     "category": "Engineering",
-    "role": { "key": "software-qa", "name": "Software QA" },
-    "license": { "spdxId": "LicenseRef-Proprietary" },
+    "role": {
+      "key": "software-qa",
+      "name": "Software QA"
+    },
+    "license": {
+      "spdxId": "LicenseRef-Proprietary"
+    },
     "iconUrls": [],
-    "roleAliases": ["Software QA", "Quality Engineer", "QA Engineer"],
-    "keywords": ["quality assurance", "testing", "release validation"],
+    "roleAliases": [
+      "Software QA",
+      "Quality Engineer",
+      "QA Engineer"
+    ],
+    "keywords": [
+      "quality assurance",
+      "testing",
+      "release validation"
+    ],
     "documentationUrl": "README.md"
   }
 }

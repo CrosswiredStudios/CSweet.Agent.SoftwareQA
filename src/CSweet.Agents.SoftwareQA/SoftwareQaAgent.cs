@@ -52,8 +52,6 @@ public sealed partial class SoftwareQaAgent : CSweetAgentBase
         AgentCapabilityRequest request, AgentRuntimeContext context,
         CancellationToken cancellationToken)
     {
-        if (request.Capability == CSweet.WebHost.Contracts.WebPreviewTriageCapabilities.Triage)
-            return await TriagePreviewAsync(request, context, cancellationToken);
         if (request.Capability == WorkManagementCapabilityNames.ExecutionRunV1)
             return await ExecuteOrchestratedWorkAsync(request, context, cancellationToken);
         if (request.Capability != SoftwareQaProfile.PrimaryCapability)
