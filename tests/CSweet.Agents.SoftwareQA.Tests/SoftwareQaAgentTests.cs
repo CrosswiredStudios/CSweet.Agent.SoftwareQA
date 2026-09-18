@@ -47,11 +47,11 @@ public sealed class SoftwareQaAgentTests
                 WorkItemCapabilities.Read,
                 GitWorkspaceCapabilities.Prepare,
                 GitWorkspaceCapabilities.Inspect,
-                GitWorkspaceCapabilities.Cleanup
+                GitWorkspaceCapabilities.Cleanup, TaskDeliveryCapabilities.Read, TaskDeliveryCapabilities.Quality, PlatformGitWorkspaceClient.SyncCapability, TaskDeliveryCapabilities.List
             ],
             manifest.Requires.Select(x => x.Name).ToArray());
         Assert.Equal(
-            ["com.csweet.calendar.reminder-due.v1", PersonalTodoEvents.Available, CommunicationEvents.MessageMentioned],
+            ["com.csweet.calendar.reminder-due.v1", PersonalTodoEvents.Available, CommunicationEvents.MessageMentioned, TaskDeliveryCapabilities.ReviewRequested],
             manifest.Events.Subscribes);
     }
 
@@ -90,6 +90,38 @@ public sealed class SoftwareQaAgentTests
             [new("dotnet test", QualityResultStatuses.Passed, 0)], [], []);
 
         SoftwareQaAgent.ValidateOutcome(outcome, Brief());
+    }
+
+    [Fact]
+    public async Task Stale_review_event_reads_current_state_and_does_not_rerun_completed_qa()
+    {
+        var task = Guid.NewGuid(); var root = Guid.NewGuid(); var reads = 0;
+        var runtime = new AgentTestRuntime().RegisterCapability<ReadTaskReviewRequest, TaskReviewResult>(TaskDeliveryCapabilities.Read, (r, _) =>
+        {
+            Assert.Equal(task, r.TaskItemId); reads++;
+            return Task.FromResult(new TaskReviewResult(Guid.NewGuid(), task, root, Guid.NewGuid(), "Task", "Scope", ["Works"], new string('a', 40), "Merged", "Passed", null, Guid.NewGuid(), 1, 10));
+        });
+        await runtime.DeliverEventAsync(new SoftwareQaAgent(), TaskDeliveryCapabilities.ReviewRequested, new TaskReviewChanged(task, root, 1));
+        Assert.Equal(1, reads); // No workspace/model capability was registered: either would fail the test.
+    }
+
+    [Fact]
+    public async Task Wrong_source_revision_is_reported_as_blocked_and_never_passed()
+    {
+        var task = Guid.NewGuid(); var root = Guid.NewGuid(); var id = Guid.NewGuid(); var reports = 0;
+        var review = new TaskReviewResult(id, task, root, Guid.NewGuid(), "Task", "Scope", ["Works"], new string('a', 40), "Testing", "Pending", null, Guid.NewGuid(), 1, 2);
+        var runtime = new AgentTestRuntime()
+            .RegisterCapability<ReadTaskReviewRequest, TaskReviewResult>(TaskDeliveryCapabilities.Read, (_, _) => Task.FromResult(review))
+            .RegisterCapability<PrepareGitWorkspaceRequest, GitWorkspaceResult>(GitWorkspaceCapabilities.Prepare, (r, _) =>
+                Task.FromResult(new GitWorkspaceResult(Guid.NewGuid(), task, "/workspace/test", review.RepositoryId, "InternalGit", "Task", new string('b', 40), "Ready", false)))
+            .RegisterCapability<ReportTaskQualityRequest, TaskReviewResult>(TaskDeliveryCapabilities.Quality, (r, _) =>
+            {
+                Assert.Equal("Blocked", r.Verdict); Assert.Equal(review.CommitSha, r.CommitSha); Assert.Empty(r.Validations);
+                Assert.Contains("does not match", r.Summary); reports++;
+                return Task.FromResult(review with { Status = "ChangesRequested" });
+            });
+        await runtime.DeliverEventAsync(new SoftwareQaAgent(), TaskDeliveryCapabilities.ReviewRequested, new TaskReviewChanged(task, root, 1));
+        Assert.Equal(1, reports);
     }
 
     private static SoftwareQualityBrief Brief() => new(
