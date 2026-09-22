@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Exe</OutputType><Version>1.1.0</Version></PropertyGroup>
+  <PropertyGroup><OutputType>Exe</OutputType><Version>1.1.1</Version></PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CSweet.Agent.SDK" Version="3.50.0" Condition="'$(UseLocalCSweetAgentSdk)' != 'true'" />
     <PackageReference Include="CSweet.WorkManagement.Contracts" Version="3.24.0" Condition="'$(UseLocalCSweetWorkManagementContracts)' != 'true'" />

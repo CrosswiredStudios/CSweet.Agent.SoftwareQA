@@ -37,10 +37,10 @@ public sealed partial class SoftwareQaAgent : CSweetAgentBase
             .LlmModel("llmModel", "Model", "llmProviderId", required: true,
                 description: "Quality-capable model from the approved provider.")
             .Number("maxContextWindowTokens", "Maximum context-window tokens", true,
-                minimum: 16_000, maximum: 2_000_000, step: 1_000,
+                minimum: 16_000, step: 1_000,
                 defaultValue: SoftwareQaHarness.MaxContextWindowTokens)
             .Number("maxOutputTokens", "Maximum output tokens", true,
-                minimum: 1_000, maximum: 200_000, step: 1_000,
+                minimum: 1_000, step: 1_000,
                 defaultValue: SoftwareQaHarness.MaxOutputTokens)
             .Number("maxQaReworkCycles", "Maximum QA rework cycles", true,
                 description: "Pauses autonomous delivery after this many failed QA cycles.",

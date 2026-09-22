@@ -14,7 +14,7 @@
   },
   "id": "com.csweet.software-qa",
   "name": "Priya Shah",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publisher": {
     "id": "com.csweet",
     "name": "C-Sweet"
@@ -187,13 +187,11 @@
               },
               "maxContextWindowTokens": {
                 "type": "number",
-                "minimum": 16000,
-                "maximum": 2000000
+                "minimum": 16000
               },
               "maxOutputTokens": {
                 "type": "number",
-                "minimum": 1000,
-                "maximum": 200000
+                "minimum": 1000
               },
               "maxQaReworkCycles": {
                 "type": "number",

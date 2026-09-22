@@ -28,11 +28,19 @@ public sealed class SoftwareQaAgentTests
             SoftwareQaHarness.MaxOutputTokens,
             configuration.Single(field => field.GetProperty("key").GetString() == "maxOutputTokens")
                 .GetProperty("defaultValue").GetInt32());
+        Assert.All(configuration.Where(field => field.GetProperty("key").GetString() is
+            "maxContextWindowTokens" or "maxOutputTokens"),
+            field => Assert.False(field.TryGetProperty("maximum", out _)));
         Assert.Equal(
             3,
             configuration.Single(field => field.GetProperty("key").GetString() == "maxQaReworkCycles")
                 .GetProperty("defaultValue").GetInt32());
         Assert.True(schema.Succeeded);
+        var describedFields = schema.Value!.Value.GetProperty("fields").EnumerateArray().ToArray();
+        Assert.All(describedFields.Where(field => field.GetProperty("key").GetString() is
+            "maxContextWindowTokens" or "maxOutputTokens"),
+            field => Assert.True(!field.TryGetProperty("maximum", out var maximum) ||
+                maximum.ValueKind == System.Text.Json.JsonValueKind.Null));
         Assert.Equal(
             ["work.item.create", "work.item.types.read.v1", "work.calendar.read.v1", "work.calendar.create.v1", "work.calendar.update.v1", "work.calendar.cancel.v1", "work.calendar.schedule.v1",
                 PersonalTodoCapabilities.Read,
