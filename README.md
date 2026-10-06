@@ -18,7 +18,7 @@ dotnet test CSweet.Agents.SoftwareQA.slnx
 dotnet run --project src/CSweet.Agents.SoftwareQA -- --self-test
 ```
 
-Built with `CSweet.Agent.SDK` 3.50.0, `CSweet.WorkManagement.Contracts` 3.24.0, and manifest protocol v2. The manifest declares the
+Built with `CSweet.Agent.SDK` 3.59.0, `CSweet.WorkManagement.Contracts` 3.24.0, and manifest protocol v2. The manifest declares the
 canonical `software-qa` role category; testing and release-validation specializations are
 preferences, not eligibility requirements.
 
@@ -37,3 +37,7 @@ The WebHost proof of concept and preview-finding triage have been retired. Ordin
 ## Personal task reviews (1.1.0)
 
 The task-review event carries a wake hint. QA reads its current assignment, materializes the exact publication, runs real acceptance checks, detects tracked source changes, and reports Passed, Failed, or Blocked. Attention reviews discover pending assignments after missed events. This requires the matching platform migration and approval of task-review read/list/report and workspace sync grants. QA cannot publish or merge.
+
+## Hierarchical delivery
+
+The V2 assignment identifies Task, Story, Epic or Release scope. Tasks require an authorized sprint; aggregate reviews require an active delivery plan and do not invent sprint identities. Use the exact assigned branch, commit or artifact revision. Every task requires independent QA, including documents. Managers accept aggregate candidates using current evidence; task completion does not promote to main or authorize deployment.

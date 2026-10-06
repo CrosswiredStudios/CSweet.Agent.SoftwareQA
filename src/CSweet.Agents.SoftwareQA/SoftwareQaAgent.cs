@@ -94,6 +94,13 @@ public sealed partial class SoftwareQaAgent : CSweetAgentBase
         {
             var item = await context.Platform.Work.ReadItemAsync(
                 new WorkItemReference(assignment.BoardId, assignment.ItemId), cancellationToken);
+            if (ArtifactDeliveryReview.Supports(assignment))
+            {
+                var selection = new AgentLlmSelection(Settings.GetGuid("llmProviderId") ??
+                    throw new InvalidOperationException("Configure an approved QA provider."), Settings.GetString("llmModel"));
+                var client = _llmFactory is null ? context.CreateChatClient(selection) : await _llmFactory.CreateChatClientAsync(selection, cancellationToken);
+                return await ArtifactDeliveryReview.ExecuteAsync(assignment, context, client, cancellationToken);
+            }
             var development = assignment.PriorOutcomes.LastOrDefault(x =>
                 x.Disposition == WorkExecutionDispositions.Completed &&
                 x.Output.ValueKind == JsonValueKind.Object &&
@@ -113,6 +120,13 @@ public sealed partial class SoftwareQaAgent : CSweetAgentBase
                     : null,
                 delivery.Requirements, delivery.AcceptanceCriteria,
                 assignment.Traversal + 1, 10, delivery.Constraints);
+            if (delivery.DeliveryPlanId.HasValue)
+            {
+                var integration = assignment.PriorOutcomes.LastOrDefault(x => x.Disposition == WorkExecutionDispositions.Completed &&
+                    x.Output.ValueKind == JsonValueKind.Object && x.Output.TryGetProperty("mergeCommitSha", out _))
+                    ?? throw new InvalidOperationException("QA requires the trusted task integration receipt.");
+                quality = quality with { SourceCommitSha = integration.Output.GetProperty("mergeCommitSha").GetString()! };
+            }
             var qa = await ExecuteAssignmentAsync(
                 assignment.AttemptId, assignment.AssignmentRevision,
                 item, quality, context, cancellationToken);
@@ -123,7 +137,14 @@ public sealed partial class SoftwareQaAgent : CSweetAgentBase
             return AgentWorkResult.Success(new WorkExecutionOutcomeV1(
                 assignment.StageExecutionId, assignment.AttemptId,
                 disposition, outcomeCode, qa.Summary,
-                JsonSerializer.SerializeToElement(qa),
+                delivery.DeliveryPlanId.HasValue ? JsonSerializer.SerializeToElement(new WorkDeliveryReviewResult(quality.SourceCommitSha,
+                    qa.Verdict == QualityVerdicts.Passed, qa.Summary,
+                    qa.Criteria.Select(x => new WorkDeliveryCriterionResult(x.Criterion, x.Status == QualityResultStatuses.Passed, x.Evidence)).ToArray(),
+                    qa.Findings.Count > 0 ? qa.Findings.Select(x => x.Title + ": " + x.Description).ToArray()
+                        : qa.Verdict == QualityVerdicts.Passed ? [] : [qa.Summary])
+                    { Validations = qa.Validations.Select(x => new WorkDeliveryValidationEvidence(delivery.RepositoryId, quality.SourceCommitSha,
+                        x.Command, x.ExitCode, x.Status == QualityResultStatuses.Passed, x.DiagnosticExcerpt ?? "")).ToArray() }, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+                    : JsonSerializer.SerializeToElement(qa),
                 [new WorkExecutionEvidence("commit", "Validated commit", quality.SourceCommitSha)],
                 qa.RemainingRisks));
         }

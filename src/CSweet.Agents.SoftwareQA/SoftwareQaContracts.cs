@@ -16,4 +16,7 @@ public sealed record SoftwareQaOutcome(
     IReadOnlyList<QualityCriterionResult> Criteria,
     IReadOnlyList<QualityValidation> Validations,
     IReadOnlyList<QualityFinding> Findings,
-    IReadOnlyList<string> RemainingRisks);
+    IReadOnlyList<string> RemainingRisks)
+{
+    public string? DeliveryCandidateDigest { get; init; }
+}

@@ -42,7 +42,7 @@ public sealed class SoftwareQaAgentTests
             field => Assert.True(!field.TryGetProperty("maximum", out var maximum) ||
                 maximum.ValueKind == System.Text.Json.JsonValueKind.Null));
         Assert.Equal(
-            ["work.item.create", "work.item.types.read.v1", "work.calendar.read.v1", "work.calendar.create.v1", "work.calendar.update.v1", "work.calendar.cancel.v1", "work.calendar.schedule.v1",
+            [WorkDeliveryCapabilities.Read, WorkDeliveryCapabilities.Evidence, "platform.artifact.read.v1", "work.item.create", "work.item.types.read.v1", "work.calendar.read.v1", "work.calendar.create.v1", "work.calendar.update.v1", "work.calendar.cancel.v1", "work.calendar.schedule.v1",
                 PersonalTodoCapabilities.Read,
                 PersonalTodoCapabilities.Add,
                 PersonalTodoCapabilities.Reorder,
