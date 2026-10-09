@@ -6,8 +6,8 @@ namespace CSweet.Agents.SoftwareQA;
 
 internal static class SoftwareQaHarness
 {
-    internal const int MaxContextWindowTokens = 128_000;
-    internal const int MaxOutputTokens = 16_000;
+    internal const int MaxContextWindowTokens = 256_000;
+    internal const int MaxOutputTokens = 128_000;
 
     internal static HarnessAgentOptions CreateOptions(
         string name, string workspace, LocalShellExecutor shell, string? customInstructions,
