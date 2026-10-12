@@ -55,11 +55,12 @@ public sealed class SoftwareQaAgentTests
                 WorkItemCapabilities.Read,
                 GitWorkspaceCapabilities.Prepare,
                 GitWorkspaceCapabilities.Inspect,
-                GitWorkspaceCapabilities.Cleanup, TaskDeliveryCapabilities.Read, TaskDeliveryCapabilities.Quality, PlatformGitWorkspaceClient.SyncCapability, TaskDeliveryCapabilities.List
+                GitWorkspaceCapabilities.Cleanup, TaskDeliveryCapabilities.Read, TaskDeliveryCapabilities.Quality, PlatformGitWorkspaceClient.SyncCapability, TaskDeliveryCapabilities.List,
+                ..DelegationCapabilities.All, PlatformCapabilities.OrganizationSnapshotRead, CommunicationCapabilities.ChatRead
             ],
             manifest.Requires.Select(x => x.Name).ToArray());
         Assert.Equal(
-            ["com.csweet.calendar.reminder-due.v1", PersonalTodoEvents.Available, CommunicationEvents.MessageMentioned, TaskDeliveryCapabilities.ReviewRequested],
+            ["com.csweet.calendar.reminder-due.v1", PersonalTodoEvents.Available, CommunicationEvents.MessageMentioned, TaskDeliveryCapabilities.ReviewRequested, DelegationCapabilities.Received, DelegationCapabilities.Changed, CommunicationEvents.MessageReceived, AgentAttentionEvents.ReviewDue],
             manifest.Events.Subscribes);
     }
 

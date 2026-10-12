@@ -18,7 +18,7 @@ dotnet test CSweet.Agents.SoftwareQA.slnx
 dotnet run --project src/CSweet.Agents.SoftwareQA -- --self-test
 ```
 
-Built with `CSweet.Agent.SDK` 3.59.0, `CSweet.WorkManagement.Contracts` 3.24.0, and manifest protocol v2. The manifest declares the
+Built with `CSweet.Agent.SDK` 3.65.0, `CSweet.WorkManagement.Contracts` 3.24.0, and manifest protocol v2. The manifest declares the
 canonical `software-qa` role category; testing and release-validation specializations are
 preferences, not eligibility requirements.
 
@@ -43,3 +43,7 @@ The task-review event carries a wake hint. QA reads its current assignment, mate
 The V2 assignment identifies Task, Story, Epic or Release scope. Tasks require an authorized sprint; aggregate reviews require an active delivery plan and do not invent sprint identities. Use the exact assigned branch, commit or artifact revision. Every task requires independent QA, including documents. Managers accept aggregate candidates using current evidence; task completion does not promote to main or authorize deployment.
 
 Model token settings default to 256,000 context-window tokens (maxContextWindowTokens) and 128,000 maximum output tokens (maxOutputTokens). Explicit installation settings override these defaults.
+
+## Delegation and tracking
+
+SDK 3.65.0 dispatches authenticated delegation before specialist conversation fallback. The manifest requests delegation, work tracking, directory and conversation reads, personal commitments and model interpretation. These declarations require reviewed grants; existing resource permissions and approval rules still apply. The shared SDK owns coordinator reporting and wake recovery.
