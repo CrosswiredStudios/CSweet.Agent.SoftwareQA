@@ -6,7 +6,7 @@ namespace CSweet.Agents.SoftwareQA;
 
 public sealed partial class SoftwareQaAgent
 {
-    protected override async Task<AgentWorkResult> ExecuteDeliveryScopeAsync(WorkExecutionAssignmentV2 assignment,
+    protected override async Task<AgentWorkResult> ExecuteDeliveryScopeAsync(WorkExecutionAssignment assignment,
         AgentRuntimeContext context, CancellationToken ct)
     {
         try

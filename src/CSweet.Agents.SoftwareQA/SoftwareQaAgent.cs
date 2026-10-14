@@ -52,7 +52,7 @@ public sealed partial class SoftwareQaAgent : CSweetAgentBase
         AgentCapabilityRequest request, AgentRuntimeContext context,
         CancellationToken cancellationToken)
     {
-        if (request.Capability == WorkManagementCapabilityNames.ExecutionRunV1)
+        if (request.Capability == WorkManagementCapabilityNames.ExecutionRun)
             return await ExecuteOrchestratedWorkAsync(request, context, cancellationToken);
         if (request.Capability != SoftwareQaProfile.PrimaryCapability)
             return AgentWorkResult.Failure($"Capability '{request.Capability}' is not supported.");
@@ -86,14 +86,14 @@ public sealed partial class SoftwareQaAgent : CSweetAgentBase
         AgentCapabilityRequest request, AgentRuntimeContext context,
         CancellationToken cancellationToken)
     {
-        WorkExecutionAssignmentV1? assignment;
-        try { assignment = DeserializePayload<WorkExecutionAssignmentV1>(request.Arguments); }
+        WorkExecutionAssignment? assignment;
+        try { assignment = DeserializePayload<WorkExecutionAssignment>(request.Arguments); }
         catch (JsonException) { return AgentWorkResult.Failure("The orchestration assignment is invalid JSON."); }
         if (assignment is null) return AgentWorkResult.Failure("The orchestration assignment is empty.");
         try
         {
             var item = await context.Platform.Work.ReadItemAsync(
-                new WorkItemReference(assignment.BoardId, assignment.ItemId), cancellationToken);
+                new WorkItemReference(assignment.BoardId, assignment.TaskItemId), cancellationToken);
             if (ArtifactDeliveryReview.Supports(assignment))
             {
                 var selection = new AgentLlmSelection(Settings.GetGuid("llmProviderId") ??

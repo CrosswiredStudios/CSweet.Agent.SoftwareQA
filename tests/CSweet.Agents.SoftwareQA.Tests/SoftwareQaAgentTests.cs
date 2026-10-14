@@ -16,7 +16,7 @@ public sealed class SoftwareQaAgentTests
 
         Assert.Equal(SoftwareQaProfile.AgentId, manifest.Id);
         Assert.Equal(SoftwareQaProfile.Version, manifest.Version);
-        Assert.Contains(WorkManagementCapabilityNames.ExecutionRunV1, manifest.Capabilities);
+        Assert.Contains(WorkManagementCapabilityNames.ExecutionRun, manifest.Capabilities);
         using var document = System.Text.Json.JsonDocument.Parse(
             await File.ReadAllTextAsync(Path.Combine(RepositoryRoot(), "csweet-plugin.json")));
         var configuration = document.RootElement.GetProperty("configuration").EnumerateArray().ToArray();
