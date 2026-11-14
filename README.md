@@ -48,6 +48,16 @@ Model token settings default to 256,000 context-window tokens (maxContextWindowT
 
 SDK 3.65.0 dispatches authenticated delegation before specialist conversation fallback. The manifest requests delegation, work tracking, directory and conversation reads, personal commitments and model interpretation. These declarations require reviewed grants; existing resource permissions and approval rules still apply. The shared SDK owns coordinator reporting and wake recovery.
 
-## Execution contract (2.0.0)
+## Execution contract (2.0.1)
 
 Execution uses one `work.execution.run` capability and `WorkExecutionAssignment` from SDK/WorkManagement.Contracts 4.0.0. Task and aggregate scopes retain their distinct authority checks within that envelope. Upgrade the platform and executing agents together; no legacy execution adapter remains.
+
+## CI dependency fallback
+
+GitHub Actions uses the pinned SDK and WorkManagement.Contracts versions from NuGet when available.
+An unpublished version is packed from its reviewed full commit in `build/ci-dependencies.json`.
+Update that commit pin together with any SDK or contracts dependency bump; CI rejects mismatched versions.
+Packages stay local to the job and are never pushed to NuGet. The job summary and dependency-provenance
+artifact record origins, source commits and SHA-256 hashes. Private source repositories require the optional
+`CSWEET_DEPENDENCY_READ_TOKEN` Actions secret with read access to the dependency repositories.
+Run `python3 scripts/test-ci-dependencies.py` for the offline resolver regression tests.
